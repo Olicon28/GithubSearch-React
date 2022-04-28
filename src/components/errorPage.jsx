@@ -1,30 +1,30 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 
-/* export const loadErrorPage = (e) => {
 
-    document.getElementById("header").classList.add('header--top');
-    document.querySelector("main").style.display = "block";
-    document.querySelector("main .content").style.display = "none";
-    document.querySelector("main .errorPage").style.display = "flex";
-    document.querySelector("main").classList.add("main--content");
-    document.querySelector(".gitHubSearch").style.height = "auto";
-
-    document.querySelector("main .errorPage").innerHTML = `
-        <h2>User not found :(</h2>
-        <p>${e}</p>`;       
-} */
-
-
-function ErrorPage({error}){
-    return(
+function ErrorPage({ error }) {
+    console.log("myerror", error);
+    return (
         <div className="errorPage">
             <h2>User not found :(</h2>
-            <p>{error}</p>
+            <p>{error.name} : {error.message}</p>
         </div>
     )
 }
 
-export default ErrorPage ;
+ErrorPage.propTypes = {
+    error : PropTypes.object 
+}
+ErrorPage.defaultProps = {
+    error : {
+        name: "Error",
+        message: "404"
+    }
+}
+
+
+
+export default ErrorPage;
 
 

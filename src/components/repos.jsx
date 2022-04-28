@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types'
 import { API } from './variables';
 import { getNameProfile } from './profile';
 
@@ -14,7 +15,7 @@ const getRepos = async () => {
         return datos;
 
     } catch (e) {
-        //loadErrorPage(e)
+        return e;
     }
 }
 
@@ -75,6 +76,20 @@ function Repos({ repos }) {
         )
 }
 
+
+Repos.propTypes = {
+    repos : PropTypes.array.isRequired  
+}
+
+Repos.defaultProps = {
+    repos : [{
+        name : "Alvaro",
+        id: "1",
+        html_url: "www.alvaro.com",
+        description: "Hola, soy álvaro",
+        stargazers_count: "1"
+    }]
+}
 
 
 

@@ -15,16 +15,18 @@ const setNameProfile = (name) => {
 const getProfile = async () => {
     try {
         const response = await fetch(API.concat(getNameProfile()));
+        
 
         if (!response.ok) {
             throw new Error(response.status);
         }
 
         const datos = await response.json();
+
         return datos;
 
     } catch (e) {
-        return {error: e};
+        return e;
     }
 }
 

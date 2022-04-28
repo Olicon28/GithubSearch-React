@@ -1,58 +1,50 @@
-import React, { useState } from 'react';
-//import ReactDOM from 'react-dom';
-import Profile, { getProfile, setNameProfile } from './components/profile';
-import Repos, { getRepos } from './components/repos';
-//import ErrorPage from './components/errorPage';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
+//import Profile from './components/profile';
+import Repos from './components/repos';
+import ErrorPage from './components/errorPage'
+import SearchInput from './components/SearchInput';
+import { useForm } from './hook/useForm'
 import Loader from './components/loader';
 import './sass/index.scss';
+const Profile = lazy(() => import('./components/profile'));
 
 
-
-const load = () => {
-
-    const header = document.getElementById("header");
-
-    header.classList.add('header--top');
-    document.querySelector("main").style.display = "none";
-    document.querySelector("main").style.display = "block";
-
-    document.querySelector("main .content").style.display = "flex";
-    //document.querySelector("main .errorPage").style.display = "none";
-    document.querySelector("main").classList.add("main--content");
-    document.querySelector(".gitHubSearch").style.height = "auto";
-}
-
+let error = "";
+var i = 0;
 
 function App() {
+    const [loading, setLoading] = useState(false);
+    const { setErrors, errors, setResponse, response, handleChange, handleSubmit } = useForm();
 
-    const [username, setUsername] = useState(null);
-    const [dataProfile, setDataProfile] = useState(null);
-    const [dataRepos, setDataRepos] = useState(null);
-    const [loader, setLoader] = useState(false);
+    const [content, setContent] = useState(false);
+    const [profile, setProfile] = useState({});
+    const [repos, setRepos] = useState({});
 
+    useEffect(async () => {
+                
 
+        if (response.length !== 0) {           
 
-    const submitForm = async (event) => {
+            const [userProfile, userRepos] = response;
+            setLoading(true);
+            setContent(true)
+            setProfile(userProfile);
+            setRepos(userRepos);
+            setLoading(false);
 
-        event.preventDefault();
+        } else if (Object.keys(errors).length !== 0) {
 
-        try {
-            
+            [error] = errors;
+            setContent(true);
 
-            setNameProfile(username);
+        }
 
-            load();
-            setLoader(true);
-            setDataProfile(await getProfile());
-            setDataRepos(await getRepos());
-            setLoader(false);
+        return () => {
+            setResponse([])
+            setErrors({})
+        }
 
-        } catch (e) {
-
-            console.log(new Error(e));
-
-        };
-    };
+    }, [response, errors]);
 
 
     return (
@@ -61,22 +53,25 @@ function App() {
                 <div className="header__logo">
                     <h1>GitHub <span>Search</span></h1>
                 </div>
-                <div className="header__search">
-                    <form className="search" id="searchForm" onSubmit={submitForm}>
-                        <input className="search__input" id="searchInput" onChange={e => setUsername(e.target.value)} placeholder="Ingresa un usuario Github" />
-                        <button className="search__button">
-                            <i className="button__icon fas fa-search"></i>
-                        </button>
-                    </form>
-                </div>
+                <SearchInput handleSubmit={handleSubmit} handleChange={handleChange} />
             </header>
             <main id="main">
                 <div className="content">
-                    {loader && <Loader />}
-                    {dataProfile && <Profile profile={dataProfile} />}
-                    {dataRepos && <Repos repos={dataRepos} />}
+                    {console.log("response: ",response)}
+                    {console.log("error: ", error)}
+                    {console.log("indice", i++)}
+                    {(content && (Object.keys(errors).length === 0))
+                        &&
+                        <Suspense fallback={<Loader />}>
+                            <>
+                                <Profile profile={profile} />
+                                <Repos repos={repos} />
+                            </>
+                        </Suspense>
+                    }
+                    {(Object.keys(errors).length !== 0 && content) 
+                        && <ErrorPage error={error} />}
                 </div>
-
             </main>
         </div>
     );
